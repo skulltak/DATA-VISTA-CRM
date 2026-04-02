@@ -1,0 +1,241 @@
+<div class="view-header" *ngIf="!activeFileId">
+  <h1>FDSS Tactical Control</h1>
+  <p class="subtitle">Field Deployment & Synchronous Operations Vault</p>
+</div>
+
+<!-- GALLERY VIEW -->
+<div *ngIf="!activeFileId" class="gallery-container">
+  <div class="upload-section card-core" [class.drag-over]="isDragging" (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+    <div class="upload-content">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.6; margin-bottom: 16px;">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <h3>Drop FDSS Intelligence Here</h3>
+      <input type="file" accept=".xlsx, .csv" (change)="onFileSelected($event)" class="file-input-hidden" #fileInput>
+      <button class="btn-primary" (click)="fileInput.click()" [disabled]="isUploading">
+        {{ isUploading ? 'Parsing...' : 'Browse FDSS Files' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="file-navigator">
+    <h3 class="section-title">FDSS Vault</h3>
+    <div class="file-grid" *ngIf="files.length > 0">
+      <div class="file-card card-core" *ngFor="let file of files" (click)="openSheetViewer(file.id)" style="position: relative;">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        </div>
+        <div class="card-details">
+          <div class="file-name">{{ file.name }}</div>
+          <div class="file-meta">{{ file.uploadDate | date:'medium' }}</div>
+        </div>
+        <button class="delete-btn" (click)="deleteFile(file.id, $event); $event.stopPropagation()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SHEET VIEWER VIEW -->
+<div *ngIf="activeFileId" class="ag-container-fluid viewer-container">
+  <div class="viewer-header">
+    <div class="header-main">
+      <button class="btn-icon" (click)="closeSheetViewer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="file-info">
+        <h2>FDSS: {{ activeFile?.name }}</h2>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="badge-status">Status: {{ isCompareMode ? 'Comparison Active' : 'Live Operations' }}</span>
+          <div class="matching-status global-match" *ngIf="isCompareMode && compareFile">
+            <span class="status-dot"></span> MATCHING_MODE: ON
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" [class.active]="isEditing" (click)="isEditing = !isEditing" *ngIf="viewMode === 'raw'">
+        {{ isEditing ? 'Finish Edit' : 'Edit FDSS' }}
+      </button>
+
+      <button class="btn-primary" (click)="saveChanges()" [disabled]="isSaving" *ngIf="viewMode === 'raw'">
+        {{ isSaving ? 'Syncing...' : 'Save Changes' }}
+      </button>
+
+      <button class="btn-secondary" (click)="exportPdf()" *ngIf="activeFileId">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; margin-right: 6px;">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Export PDF
+      </button>
+
+      <button class="btn-secondary" [class.active]="isCompareMode" (click)="toggleCompareMode()" *ngIf="viewMode === 'raw'">
+        {{ isCompareMode ? 'Exit Compare' : 'Compare' }}
+      </button>
+
+      <div class="mode-tabs">
+        <button [class.active]="viewMode === 'raw'" (click)="viewMode = 'raw'">Dataset</button>
+        <button [class.active]="viewMode === 'pivots'" (click)="viewMode = 'pivots'">Analytics</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compare Bar -->
+  <div class="compare-selector-bar" *ngIf="isCompareMode && !compareFile && viewMode === 'raw'">
+    <div class="bar-content">
+      <label>Compare against target:</label>
+      <select (change)="onCompareFileSelected($event)" class="table-search">
+        <option value="">-- FDSS Vault --</option>
+        <option *ngFor="let f of files" [value]="f.id" [disabled]="f.id === activeFileId">{{ f.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Pivot Dashboard -->
+  <div class="pivot-dashboard" *ngIf="activePivots && viewMode === 'pivots'">
+    <div class="ag-pivot-card card-core">
+      <div class="card-header-actions">
+        <div class="title-group">
+          <h4 class="card-title">{{ selectedCategory === 'ALL' ? 'Total' : selectedCategory }} FDSS Performance</h4>
+          <div class="category-toggle">
+            <button [class.active]="selectedCategory === 'TVLA'" (click)="selectedCategory = 'TVLA'; onPivotFilterChange()">FDSS</button>
+            <button [class.active]="selectedCategory === 'AC'" (click)="selectedCategory = 'AC'; onPivotFilterChange()">AC FDSS</button>
+            <button [class.active]="selectedCategory === 'ALL'" (click)="selectedCategory = 'ALL'; onPivotFilterChange()">ALL</button>
+          </div>
+        </div>
+        <select class="table-search pivot-filter" [(ngModel)]="selectedPivotJobName" (change)="onPivotFilterChange()">
+          <option value="All">All Jobs</option>
+          <option *ngFor="let j of activePivots.jobNames" [value]="j">{{j}}</option>
+        </select>
+      </div>
+
+      <ng-template #pivotTable let-data="data">
+        <table class="spreadsheet-table pivot-mode">
+          <thead>
+            <tr>
+              <th class="state-label sticky-col">REGION</th>
+              <th *ngFor="let h of ['CANCELLED', 'COMPLETED', 'FULFILLMENT_HOLD', 'NOT_SERVICED']" class="ag-numeric-cell">{{ h }}</th>
+              <th class="ag-numeric-cell total-header">Grand Total</th>
+              <th class="ag-numeric-cell">%</th>
+              <th class="ag-numeric-cell col-header-target">Day End</th>
+              <th class="ag-numeric-cell">= / -</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of data.rows">
+              <td class="state-label sticky-col">{{ row.state }}</td>
+              <td *ngFor="let h of ['CANCELLED', 'COMPLETED', 'FULFILLMENT_HOLD', 'NOT_SERVICED']" class="ag-numeric-cell">{{ row[h] || 0 }}</td>
+              <td class="ag-numeric-cell row-total">{{ row.TOTAL }}</td>
+              <td class="ag-numeric-cell" [ngClass]="getPercentageClass(row.PERCENTAGE)">{{ row.PERCENTAGE }}%</td>
+              <td class="ag-numeric-cell">{{ row.DAY_END }}</td>
+              <td class="ag-numeric-cell" [ngClass]="getDiffClass(row.DIFFERENCE)">{{ row.DIFFERENCE }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="grand-total-row">
+              <td class="state-label sticky-col">Grand Total</td>
+              <td *ngFor="let h of ['CANCELLED', 'COMPLETED', 'FULFILLMENT_HOLD', 'NOT_SERVICED']" class="ag-numeric-cell">{{ data.grandTotal[h] }}</td>
+              <td class="ag-numeric-cell">{{ data.grandTotal.TOTAL }}</td>
+              <td class="ag-numeric-cell" [ngClass]="getPercentageClass(data.grandTotal.PERCENTAGE)">{{ data.grandTotal.PERCENTAGE }}%</td>
+              <td class="ag-numeric-cell">{{ data.grandTotal.DAY_END }}</td>
+              <td class="ag-numeric-cell" [ngClass]="getDiffClass(data.grandTotal.DIFFERENCE)">{{ data.grandTotal.DIFFERENCE }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </ng-template>
+      <ng-container *ngTemplateOutlet="pivotTable; context: { data: activePivots.summary }"></ng-container>
+
+      <div class="empty-match-state card-core" *ngIf="activePivots.summary.rows.length === 0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="warning-icon">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <h3>NO TACTICAL MATCH FOUND</h3>
+        <p>The intersection engine found zero overlapping Service Order IDs between these files.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared Excel Grid -->
+  <ng-template #excelGrid let-sheet="sheet" let-isSecondary="isSecondary">
+    <div class="sheet-viewport excel-mode">
+      <table class="spreadsheet-table excel-grid">
+        <thead>
+          <tr class="excel-header-row">
+            <th class="row-number-header"></th>
+            <th *ngFor="let h of sheet.data[0]; let i = index" [class.highlight]="isHighlightedColumn(h)">
+              <div class="col-name">{{ h }}</div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of (isSecondary ? sheet.data.slice(1) : filteredRawRows); let i = index">
+            <td class="row-number">{{ i + 1 }}</td>
+            <td *ngFor="let cell of row; let j = index" 
+                [attr.contenteditable]="isEditing && !isSecondary"
+                (blur)="onCellEdit(i + 1, j, $event)"
+                [class.highlight]="isHighlightedColumn(sheet.data[0][j])">
+              {{ cell }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-template>
+
+  <!-- Side-by-Side View -->
+  <div class="compare-layout" *ngIf="isCompareMode && compareFile && viewMode === 'raw'">
+    <div class="pane pane-primary">
+      <div class="pane-navbar">
+        <span class="pane-badge">PRIMARY FDSS</span>
+        <div class="pane-tabs">
+          <button *ngFor="let s of activeFile?.sheets; let i = index" [class.active]="i === activeSheetIndex" (click)="selectSheet(i)">{{ s.name }}</button>
+        </div>
+      </div>
+      <ng-container *ngTemplateOutlet="excelGrid; context: { sheet: activeSheet, isSecondary: false }"></ng-container>
+    </div>
+    <div class="pane pane-secondary">
+      <div class="pane-navbar">
+        <span class="pane-badge secondary">TARGET FDSS</span>
+        <div class="pane-tabs">
+          <button *ngFor="let s of compareFile?.sheets; let i = index" [class.active]="i === compareSheetIndex" (click)="selectCompareSheet(i)">{{ s.name }}</button>
+        </div>
+      </div>
+      <ng-container *ngTemplateOutlet="excelGrid; context: { sheet: compareSheet, isSecondary: true }"></ng-container>
+    </div>
+
+    <!-- Raw Match Empty Overlay -->
+    <div class="raw-empty-overlay" *ngIf="filteredRawRows.length === 0 && isCompareMode && compareFile">
+       <div class="overlay-content">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="warning-icon">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <h3>ZERO INTERSECTION DETECTED</h3>
+          <p>No matching Service Order IDs found in Primary file.</p>
+       </div>
+    </div>
+  </div>
+
+  <!-- Standard View -->
+  <div class="ag-sheet-view" *ngIf="activeSheet && viewMode === 'raw' && !isCompareMode">
+    <ng-container *ngTemplateOutlet="excelGrid; context: { sheet: activeSheet, isSecondary: false }"></ng-container>
+  </div>
+
+  <!-- Tabs -->
+  <div class="sheet-tabs" *ngIf="activeFile && !isCompareMode">
+    <div class="tab" *ngFor="let sheet of activeFile.sheets; let i = index" 
+         [class.active]="i === activeSheetIndex" (click)="selectSheet(i)">
+      {{ sheet.name }}
+    </div>
+  </div>
+</div>

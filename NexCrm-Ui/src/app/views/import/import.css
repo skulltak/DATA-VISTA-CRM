@@ -1,0 +1,73 @@
+.import-zone {
+  padding: 40px 20px !important;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.drop-icon svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.drop-title {
+  color: #fff;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.vista-integration-card {
+  max-width: 800px;
+  margin: 20px auto 0;
+  background: var(--bg-hud) !important;
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-hud) !important;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 32px;
+}
+
+.vista-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.vista-logo {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.vista-footer {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.sync-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.import-options {
+  max-width: 800px;
+  margin: 0 auto;
+}

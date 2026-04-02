@@ -1,0 +1,65 @@
+<div class="view-header">
+  <h1>Raw Imported Data</h1>
+  <p class="subtitle">View and search through your historical data imports</p>
+</div>
+
+<div class="raw-data-layout" style="display: grid; grid-template-columns: 280px 1fr; gap: 20px;">
+  <!-- Files History Sidebar -->
+  <div class="files-history" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
+    <div class="nav-section-label">IMPORT HISTORY</div>
+    <div class="file-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+      <div *ngFor="let file of files" 
+           class="nav-item" 
+           [class.active]="file.id === selectedFileId"
+           (click)="selectFile(file.id)"
+           style="cursor: pointer; padding: 10px; border-radius: 8px;">
+        <div style="font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ file.fileName }}</div>
+        <div style="font-size: 11px; color: var(--text-muted);">{{ file.uploadDate | date:'medium' }} • {{ file.recordCount }} records</div>
+      </div>
+      <div *ngIf="files.length === 0" style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 13px;">
+        No imports yet.
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Table Content -->
+  <div class="data-content" style="display: flex; flex-direction: column; gap: 16px;">
+    <div class="table-toolbar" style="margin-bottom: 0;">
+      <input type="text" class="table-search" [(ngModel)]="search" placeholder="Search records in this file..."/>
+      <button class="btn-outline" (click)="exportToCsv()" [disabled]="records.length === 0">Export to CSV</button>
+    </div>
+
+    <div class="table-wrap" style="background: var(--surface); border: 1px solid var(--border); min-height: 400px; padding: 20px; overflow: auto;">
+      <div *ngIf="selectedFileId && records.length > 0">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th *ngFor="let h of headers">{{ h }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of paginatedRecords">
+              <td *ngFor="let h of headers">{{ r[h] }}</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+          <div style="font-size: 13px; color: var(--text-muted);">
+            Showing {{ ((currentPage - 1) * pageSize) + 1 }} to {{ minRecordCount }} of {{ filteredRecords.length }} entries
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-outline" style="padding: 4px 12px; font-size: 12px;" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+            <span style="font-size: 13px; padding: 4px 8px;">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button class="btn-outline" style="padding: 4px 12px; font-size: 12px;" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!selectedFileId || records.length === 0" style="text-align: center; padding: 40px;">
+        <svg viewBox="0 0 64 64" fill="none" style="width: 48px; opacity: 0.3; margin-bottom: 12px;"><rect x="8" y="12" width="48" height="40" rx="4" stroke="currentColor" stroke-width="2"/><path d="M22 32h20M22 24h20M22 40h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <p>Select a file to view its records or import a new file.</p>
+        <button class="btn-primary" style="margin-top: 16px;" routerLink="/import">Go to Import</button>
+      </div>
+    </div>
+  </div>
+</div>

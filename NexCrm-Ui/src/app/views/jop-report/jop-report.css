@@ -1,0 +1,33 @@
+.jop-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: var(--text-main);
+}
+.jop-table th, .jop-table td {
+  border: 1px solid #dee2e6;
+  padding: 8px 12px;
+  text-align: right;
+}
+.jop-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+}
+.jop-table th:first-child, .jop-table td.state-label {
+  text-align: left;
+}
+.jop-table td.total-cell {
+  font-weight: bold;
+  background-color: #f8f9fa;
+  color: #333;
+}
+.jop-table tfoot .grand-total-row th,
+.jop-table tfoot .grand-total-row td {
+  font-weight: bold;
+  background-color: #f8f9fa;
+  color: #333;
+  border-top: 2px solid #dee2e6;
+}

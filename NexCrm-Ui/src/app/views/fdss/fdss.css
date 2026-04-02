@@ -1,0 +1,95 @@
+/* Clone of file-viewer.css */
+@import '../file-viewer/file-viewer.css';
+
+/* Override or add FDSS specific tweaks here if needed */
+.fdss-tactical-label {
+    color: var(--primary);
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.matching-status {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #22c55e;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #22c55e;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.6; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.empty-match-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    margin: 24px;
+    text-align: center;
+    background: rgba(0,0,0,0.3) !important;
+}
+
+.warning-icon {
+    width: 64px;
+    height: 64px;
+    color: #f59e0b;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.4));
+}
+
+.empty-match-state h3 {
+    color: #f59e0b;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.raw-empty-overlay {
+    position: absolute;
+    top: 50px;
+    left: 12px;
+    width: calc(50% - 18px); 
+    height: calc(100% - 62px);
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    border-radius: 12px;
+}
+
+.overlay-content {
+    text-align: center;
+}
+
+.overlay-content h3 {
+    color: #ef4444;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.overlay-content p {
+    color: #cbd5e1;
+    font-size: 13px;
+}

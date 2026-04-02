@@ -1,0 +1,17 @@
+<div class="scanline"></div>
+<div class="bg-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<app-sidebar></app-sidebar>
+
+<div class="main-wrapper">
+  <app-topbar (toggleSidebar)="toggleSidebar()"></app-topbar>
+  
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+<app-chat></app-chat>

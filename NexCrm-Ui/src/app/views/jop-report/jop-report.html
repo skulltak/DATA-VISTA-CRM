@@ -1,0 +1,76 @@
+<div class="view-header">
+  <h1>JOp Report</h1>
+  <p class="subtitle">Dynamic grid replicating Excel Pivot Table for job status summary</p>
+</div>
+
+<div class="jop-report-layout" style="display: grid; grid-template-columns: 280px 1fr; gap: 20px;">
+  <!-- Files History Sidebar -->
+  <div class="files-history" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
+    <div class="nav-section-label">IMPORT HISTORY</div>
+    <div class="file-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+      <div *ngFor="let file of files" 
+           class="nav-item" 
+           [class.active]="file.id === selectedFileId"
+           (click)="selectFile(file.id)"
+           style="cursor: pointer; padding: 10px; border-radius: 8px;">
+        <div style="font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ file.fileName }}</div>
+        <div style="font-size: 11px; color: var(--text-muted);">{{ file.uploadDate | date:'medium' }} • {{ file.recordCount }} records</div>
+      </div>
+      <div *ngIf="files.length === 0" style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 13px;">
+        No imports yet.
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Table Content -->
+  <div class="data-content" style="display: flex; flex-direction: column; gap: 16px;">
+    <div class="table-toolbar" style="margin-bottom: 0;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <label style="font-size: 13px; font-weight: 600;">JOB NAME:</label>
+        <select class="table-search" style="width: 320px; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 13px;" [(ngModel)]="selectedJobName" (change)="onFilterChange()">
+          <option value="All">(All)</option>
+          <option *ngFor="let job of jobNames" [value]="job">{{ job }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="ag-spreadsheet-container table-wrap" style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: auto; height: 70vh; padding: 20px;">
+      <div *ngIf="selectedFileId && reportData">
+        <table class="jop-table">
+          <thead>
+            <tr>
+              <th>Row Labels</th>
+              <th>--</th>
+              <th>ACCEPTED</th>
+              <th>ASSIGNED</th>
+              <th>Grand Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of reportData.data">
+              <td class="state-label">{{ row.state }}</td>
+              <td>{{ row.emptyCount > 0 ? row.emptyCount : '' }}</td>
+              <td>{{ row.acceptedCount > 0 ? row.acceptedCount : '' }}</td>
+              <td>{{ row.assignedCount > 0 ? row.assignedCount : '' }}</td>
+              <td class="total-cell">{{ row.total > 0 ? row.total : '' }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="grand-total-row">
+              <td class="state-label">Grand Total</td>
+              <td>{{ reportData.grandTotal.emptyCount > 0 ? reportData.grandTotal.emptyCount : '' }}</td>
+              <td>{{ reportData.grandTotal.acceptedCount > 0 ? reportData.grandTotal.acceptedCount : '' }}</td>
+              <td>{{ reportData.grandTotal.assignedCount > 0 ? reportData.grandTotal.assignedCount : '' }}</td>
+              <td class="total-cell">{{ reportData.grandTotal.total > 0 ? reportData.grandTotal.total : '' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div *ngIf="!selectedFileId || !reportData || reportData.data.length === 0" class="ag-empty-state" style="text-align: center; padding: 40px;">
+        <svg viewBox="0 0 64 64" fill="none" style="width: 48px; opacity: 0.3; margin-bottom: 12px;"><rect x="8" y="12" width="48" height="40" rx="4" stroke="currentColor" stroke-width="2"/><path d="M22 32h20M22 24h20M22 40h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <p>No File Selected</p>
+        <button class="btn-primary" style="margin-top: 16px;" routerLink="/import">Go to Import</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,179 @@
+<div class="view-header">
+  <h1>Pivot Table Builder</h1>
+  <p class="subtitle">Select a file and drag fields to analyze your data</p>
+</div>
+
+<div class="pivot-builder-layout" style="display: grid; grid-template-columns: 240px 1fr 240px; gap: 24px; height: calc(100vh - 160px);">
+  <!-- Field Pool -->
+  <div class="field-pool-wrap" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column;">
+    <div class="nav-section-label" style="margin-bottom: 12px;">AVAILABLE FIELDS</div>
+    <select [(ngModel)]="selectedFileId" (change)="onFileChange()" class="select-input" style="width: 100%; margin-bottom: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 8px; border-radius: 8px; color: var(--text);">
+      <option *ngFor="let file of files" [value]="file.id">{{ file.fileName }}</option>
+    </select>
+    
+    <div class="field-pool" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto;">
+      <div *ngFor="let field of availableFields" class="field-chip-row" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px;">
+        <span style="font-size: 13px; font-weight: 500;">{{ field }}</span>
+        <div class="field-actions" style="display: flex; gap: 4px;">
+          <button (click)="addField(field, 'rows')" class="field-btn" style="color: #6366f1;" title="Add to Rows">+R</button>
+          <button (click)="addField(field, 'columns')" class="field-btn" style="color: #22d3ee;" title="Add to Columns">+C</button>
+          <button (click)="addField(field, 'values')" class="field-btn" style="color: #8b5cf6;" title="Add to Values">+V</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Design Zones -->
+  <div class="design-zones-container" style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <button class="btn-ghost" style="padding: 6px 16px; font-size: 12px; border: 1px solid var(--border); border-radius: 8px;" (click)="clearAll()">Reset All ↺</button>
+        <span style="font-size: 12px; opacity: 0.5;">Tip: Choose an aggregation before adding to Values</span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 20px;">
+      <!-- ROWS -->
+      <div class="pivot-zone">
+        <div class="zone-label"><span style="opacity: 0.4;">↕</span> ROWS</div>
+        <div class="zone-fields">
+          <div *ngFor="let field of rows" class="field-chip">
+            {{ field }} <span (click)="removeField(field, 'rows')" style="cursor: pointer; opacity: 0.5; margin-left: 8px;">✕</span>
+          </div>
+          <div *ngIf="rows.length === 0" class="zone-placeholder">Add fields as Rows</div>
+        </div>
+      </div>
+
+      <!-- COLUMNS -->
+      <div class="pivot-zone">
+        <div class="zone-label"><span style="opacity: 0.4;">↔</span> COLUMNS</div>
+        <div class="zone-fields">
+          <div *ngFor="let field of columns" class="field-chip">
+            {{ field }} <span (click)="removeField(field, 'columns')" style="cursor: pointer; opacity: 0.5; margin-left: 8px;">✕</span>
+          </div>
+          <div *ngIf="columns.length === 0" class="zone-placeholder">Add fields as Columns</div>
+        </div>
+      </div>
+
+      <!-- VALUES -->
+      <div class="pivot-zone">
+        <div class="zone-label"><span style="opacity: 0.4;">Σ</span> VALUES (Measures)</div>
+        <div class="zone-fields">
+          <div *ngFor="let config of valueConfigs" class="field-chip" style="border-left: 2px solid var(--cyan); display: flex; align-items: center; gap: 8px;">
+            <span style="font-weight: 700; font-size: 10px; background: rgba(34, 211, 238, 0.2); padding: 2px 4px; border-radius: 4px; text-transform: uppercase;">{{ config.type }}</span>
+            {{ config.field || '(Count)' }} 
+            <span (click)="removeField(config, 'values')" style="cursor: pointer; opacity: 0.5;">✕</span>
+          </div>
+          <div *ngIf="valueConfigs.length === 0" class="zone-placeholder">Add fields as Values</div>
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="pivot-zone" style="opacity: 0.5; pointer-events: none;">
+        <div class="zone-label"><span style="opacity: 0.4;">⚙</span> FILTERS (Coming Soon)</div>
+        <div class="zone-fields">
+          <div *ngFor="let field of filters" class="field-chip" style="border-left: 2px solid var(--warning);">
+            {{ field }} <span (click)="removeField(field, 'filters')" style="cursor: pointer; opacity: 0.5;">✕</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pivot Result Output -->
+    <div class="pivot-output" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; min-height: 300px; padding: 24px; overflow: auto; flex: 1; margin-top: 10px;">
+      <div *ngIf="pivotData.length > 0">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3 style="margin: 0; font-size: 16px; font-weight: 700;">Pivot Result</h3>
+          <div style="font-size: 12px; color: var(--text-muted);">{{ pivotData.length }} groups found</div>
+        </div>
+        
+        <!-- Result Table -->
+        <table class="data-table" *ngIf="chartType === 'table'">
+          <thead>
+            <tr>
+              <th rowspan="2" style="background: rgba(255,255,255,0.02); min-width: 150px; vertical-align: middle;">{{ rows.join(' / ') || 'Metrics' }}</th>
+              <th *ngFor="let col of columnHeaders" [attr.colspan]="metricHeaders().length" style="text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);">{{ col }}</th>
+              <th [attr.colspan]="metricHeaders().length" style="background: rgba(99, 102, 241, 0.1); color: var(--accent); text-align: center; border-bottom: 1px solid rgba(99, 102, 241, 0.2);">Grand Total</th>
+            </tr>
+            <tr style="font-size: 11px;">
+              <ng-container *ngFor="let col of columnHeaders">
+                <th *ngFor="let m of metricHeaders()" style="text-align: right; font-weight: 500; opacity: 0.7;">{{ m }}</th>
+              </ng-container>
+              <th *ngFor="let m of metricHeaders()" style="text-align: right; font-weight: 600; background: rgba(99, 102, 241, 0.05);">{{ m }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of pivotData">
+              <td style="font-weight: 600; white-space: nowrap;">{{ row.key }}</td>
+              <ng-container *ngFor="let col of columnHeaders">
+                <td *ngFor="let m of metricHeaders()" style="text-align: right;">
+                  {{ row.values[col]?.[m] !== undefined ? (row.values[col][m] | number:'1.0-2') : '-' }}
+                </td>
+              </ng-container>
+              <td *ngFor="let m of metricHeaders()" style="font-weight: 700; text-align: right; background: rgba(255, 255, 255, 0.02);">
+                {{ getRowTotal(row, m) | number:'1.0-2' }}
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr style="border-top: 2px solid var(--border); background: rgba(34, 211, 238, 0.05);">
+              <td style="font-weight: 700;">Grand Total</td>
+              <ng-container *ngFor="let col of columnHeaders">
+                <td *ngFor="let m of metricHeaders()" style="font-weight: 700; text-align: right;">{{ getColTotal(col, m) | number:'1.0-2' }}</td>
+              </ng-container>
+              <td *ngFor="let m of metricHeaders()" style="font-weight: 800; color: var(--accent); text-align: right; background: rgba(99, 102, 241, 0.1);">{{ getGrandTotal(m) | number:'1.0-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- Chart View -->
+        <div *ngIf="chartType !== 'table'" style="height: 400px; padding: 20px;">
+          <canvas #pivotChart></canvas>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="pivotData.length === 0 && !isLoading" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); padding: 40px; text-align: center;">
+        <div style="font-size: 40px; margin-bottom: 15px; opacity: 0.1;">📊</div>
+        <p style="font-size: 13px; max-width: 260px;">Select dimensions and measures, then click <strong>Build Pivot</strong>.</p>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" style="height: 100%; display: flex; align-items: center; justify-content: center; padding: 40px;">
+        <div class="loading-spinner-simple"></div>
+        <span style="margin-left: 12px; color: var(--text-muted); font-size: 13px;">Analyzing data...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Sidebar -->
+  <div class="pivot-settings-panel" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px;">
+    <div class="nav-section-label" style="margin-bottom: 20px;">SETTINGS</div>
+    
+    <div class="form-group" style="margin-bottom: 24px;">
+      <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px;">Aggregation</label>
+      <select [(ngModel)]="aggregationType" class="select-input" style="width: 100%; border-radius: 8px;">
+        <option value="sum">Sum</option>
+        <option value="count">Count</option>
+        <option value="avg">Average</option>
+      </select>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 30px;">
+      <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px;">Chart</label>
+      <select [(ngModel)]="chartType" class="select-input" style="width: 100%; border-radius: 8px;">
+        <option value="table">Table View</option>
+        <option value="bar">Bar Chart</option>
+        <option value="line">Line Chart</option>
+      </select>
+    </div>
+
+    <button class="btn-primary" style="width: 100%; margin-bottom: 12px; padding: 12px;" (click)="buildPivot()">Build Pivot</button>
+    
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <button class="btn-ghost" style="width: 100%; font-size: 13px; background: rgba(99, 102, 241, 0.1); color: var(--accent); border: none;" (click)="downloadFinalReport()">Download Final Report</button>
+      <button class="btn-ghost" style="width: 100%; font-size: 11px; border: none; opacity: 0.6;" (click)="resetPivot()">Reset Analytics</button>
+    </div>
+  </div>
+</div>
+

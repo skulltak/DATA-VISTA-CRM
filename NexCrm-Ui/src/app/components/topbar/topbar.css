@@ -1,0 +1,73 @@
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-end);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 4px;
+  width: 320px;
+  transition: all 0.2s;
+}
+
+.search-bar:focus-within {
+  border-color: var(--accent);
+  background: var(--card-bg);
+}
+
+.search-bar svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+}
+
+.search-bar input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  width: 100%;
+  outline: none;
+}
+
+.search-bar input::placeholder {
+  color: var(--text-muted);
+}
+
+.icon-btn {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  position: relative;
+}
+
+.icon-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-btn .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--danger);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 2px;
+}

@@ -1,0 +1,40 @@
+# .NET build outputs
+bin/
+obj/
+*.db
+*.db-shm
+*.db-wal
+
+# .NET user secrets
+*.user
+appsettings.Development.json
+
+# Logs
+logs/
+*.log
+
+# NuGet
+.nuget/
+packages/
+*.nupkg
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+yarn-error.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploaded import files (runtime data)
+NexCrm.Api/AppData/

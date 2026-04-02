@@ -1,0 +1,70 @@
+<div class="view-header">
+  <h1>Deals Pipeline</h1>
+  <button class="btn-primary" (click)="openAddModal()">+ Add Deal</button>
+</div>
+
+<div class="kanban">
+  <div class="kanban-col" *ngFor="let col of columns">
+    <div class="kanban-col-header">
+      <span [style.color]="col.color">{{ col.label }}</span>
+      <span class="count">{{ col.deals.length }}</span>
+    </div>
+    <div class="kanban-cards">
+      <div class="deal-card" *ngFor="let deal of col.deals" (click)="openEditModal(deal)">
+        <div class="deal-card-title">{{ deal.title }}</div>
+        <div class="deal-card-company">{{ deal.company }}</div>
+        <div class="deal-card-value">{{ deal.value | currency:'USD':'symbol':'1.0-0' }}</div>
+      </div>
+      <div class="empty-state" *ngIf="col.deals.length === 0" style="padding: 20px 0; border: 1px dashed var(--border); border-radius: 8px;">
+        <p style="font-size: 11px;">No deals</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" [class.hidden]="!showModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>{{ editingDeal.id ? 'Edit Deal' : 'Add Deal' }}</h3>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label>Deal Title</label>
+        <input type="text" [(ngModel)]="editingDeal.title" placeholder="Acme Software Licenses"/>
+      </div>
+      <div class="form-field">
+        <label>Company</label>
+        <input type="text" [(ngModel)]="editingDeal.company" placeholder="Acme Inc."/>
+      </div>
+      <div class="form-field">
+        <label>Deal Value ($)</label>
+        <input type="number" [(ngModel)]="editingDeal.value"/>
+      </div>
+      <div class="form-field">
+        <label>Stage</label>
+        <select [(ngModel)]="editingDeal.stage">
+          <option value="Lead">Lead</option>
+          <option value="Qualified">Qualified</option>
+          <option value="Proposal">Proposal</option>
+          <option value="Won">Won</option>
+          <option value="Lost">Lost</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Contact Person</label>
+        <input type="text" [(ngModel)]="editingDeal.contact" placeholder="John Doe"/>
+      </div>
+      <div class="form-field">
+        <label>Notes</label>
+        <textarea [(ngModel)]="editingDeal.notes" placeholder="Deal requirements, next steps..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="closeModal()">Cancel</button>
+      <button *ngIf="editingDeal.id" class="btn-outline" (click)="deleteDeal(editingDeal.id!)" style="color:var(--danger); border-color:var(--danger); margin-right: auto;">Delete</button>
+      <button class="btn-primary" (click)="saveDeal()">Save Deal</button>
+    </div>
+  </div>
+</div>

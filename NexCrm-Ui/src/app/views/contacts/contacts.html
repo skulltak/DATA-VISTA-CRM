@@ -1,0 +1,99 @@
+<div class="view-header">
+  <h1>Contacts</h1>
+  <button class="btn-primary" (click)="openAddModal()">+ Add Contact</button>
+</div>
+
+<div class="table-toolbar">
+  <input type="text" class="table-search" [(ngModel)]="search" (ngModelChange)="onSearch()" placeholder="Search contacts…"/>
+  <button class="btn-outline">Export CSV</button>
+</div>
+
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Company</th>
+        <th>Phone</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let contact of contacts">
+        <td><strong>{{ contact.name }}</strong></td>
+        <td>{{ contact.email }}</td>
+        <td>{{ contact.company }}</td>
+        <td>{{ contact.phone }}</td>
+        <td>
+          <span class="chip" [ngClass]="{
+            'chip-blue': contact.status === 'Lead',
+            'chip-yellow': contact.status === 'Opportunity',
+            'chip-green': contact.status === 'Customer'
+          }">{{ contact.status }}</span>
+        </td>
+        <td>
+          <button class="action-btn" (click)="openEditModal(contact)">Edit</button>
+          <button class="action-btn del" (click)="deleteContact(contact.id!)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="empty-state" *ngIf="contacts.length === 0">
+    <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="22" r="10" stroke="#6366f1" stroke-width="2"/><path d="M12 54c0-11.046 8.954-20 20-20s20 8.954 20 20" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/></svg>
+    <p>No contacts found. Start by adding one or importing data.</p>
+  </div>
+</div>
+
+<div class="pagination">
+  <button class="page-btn" (click)="prevPage()" [disabled]="page === 1">‹</button>
+  <button class="page-btn active">{{ page }}</button>
+  <button class="page-btn" (click)="nextPage()">›</button>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" [class.hidden]="!showModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>{{ editingContact.id ? 'Edit Contact' : 'Add Contact' }}</h3>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label>Full Name</label>
+        <input type="text" [(ngModel)]="editingContact.name" placeholder="John Doe"/>
+      </div>
+      <div class="form-field">
+        <label>Email Address</label>
+        <input type="email" [(ngModel)]="editingContact.email" placeholder="john@example.com"/>
+      </div>
+      <div class="form-field">
+        <label>Company</label>
+        <input type="text" [(ngModel)]="editingContact.company" placeholder="Acme Inc."/>
+      </div>
+      <div class="form-field">
+        <label>Phone</label>
+        <input type="text" [(ngModel)]="editingContact.phone" placeholder="+1 (555) 000-0000"/>
+      </div>
+      <div class="form-field">
+        <label>Status</label>
+        <select [(ngModel)]="editingContact.status">
+          <option value="Lead">Lead</option>
+          <option value="Opportunity">Opportunity</option>
+          <option value="Customer">Customer</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Notes</label>
+        <textarea [(ngModel)]="editingContact.notes" placeholder="Additional details..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="closeModal()">Cancel</button>
+      <button class="btn-primary" (click)="saveContact()">Save Contact</button>
+    </div>
+  </div>
+</div>
