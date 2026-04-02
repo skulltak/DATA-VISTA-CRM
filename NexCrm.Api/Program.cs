@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "https://nexcrm-ui.onrender.com")
+        policy.WithOrigins("http://localhost:4200", "https://nexcrm-ui.onrender.com", "https://datavistavecare.netlify.app")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials() // Required for SignalR
