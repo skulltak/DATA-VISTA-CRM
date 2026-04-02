@@ -5,12 +5,22 @@
   "description": "Auto-imports downloaded Amazon Seller Central reports directly into Data Vista CRM.",
   "permissions": [
     "downloads",
-    "notifications"
+    "notifications",
+    "tabs",
+    "scripting"
   ],
   "host_permissions": [
     "file:///*",
     "https://data-vista-crm.onrender.com/*",
-    "http://localhost:5247/*"
+    "https://data-vista-crm-1.onrender.com/*",
+    "https://sellercentral.amazon.in/*",
+    "https://datavistavecare.netlify.app/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://datavistavecare.netlify.app/*"],
+      "js": ["content.js"]
+    }
   ],
   "background": {
     "service_worker": "background.js",

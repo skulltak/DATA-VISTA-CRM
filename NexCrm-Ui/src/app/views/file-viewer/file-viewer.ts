@@ -26,6 +26,7 @@ export class FileViewerComponent implements OnInit {
   isDragging = false;
   isUploading = false;
   isSaving = false;
+  isSyncing = false;
   isEditing = false; 
   isCompareMode = false;
   compareFileId: string | null = null;
@@ -273,6 +274,64 @@ export class FileViewerComponent implements OnInit {
       index = Math.floor(index / 26) - 1;
     }
     return label;
+  }
+
+  async syncMissingStatuses() {
+    if (!this.activeFile || !this.activeSheet) return;
+
+    const sheet = this.activeSheet;
+    const headers = sheet.data[0];
+    const statusColIndex = headers.findIndex(h => {
+      const hh = h?.toString()?.toUpperCase();
+      return hh === 'STAT' || hh === 'JOB_STATUS' || hh === 'TECHNICIAN_ASSIGNMENT_STATUS';
+    });
+    
+    const idColIndex = headers.findIndex(h => {
+      const hh = h?.toString()?.toUpperCase();
+      return hh === 'SERVICE_ORDER_ID' || hh === 'CALLER_ID';
+    });
+
+    if (statusColIndex === -1 || idColIndex === -1) {
+      alert('SYNC_ERROR: Required columns (Status and Service Order ID) not found.');
+      return;
+    }
+
+    const missingRecords = sheet.data.slice(1)
+      .map((row, idx) => ({ row, idx: idx + 1 }))
+      .filter(item => {
+        const status = item.row[statusColIndex]?.toString()?.toUpperCase();
+        return status === 'NA' || status === 'N.A' || !status;
+      })
+      .map(item => ({
+        id: item.row[idColIndex],
+        originalIndex: item.idx
+      }));
+
+    if (missingRecords.length === 0) {
+      alert('COMPLIANCE_STATUS: All records have valid statuses.');
+      return;
+    }
+
+    this.isSyncing = true;
+    
+    // Send message to the extension
+    // We use window.postMessage so the content script (which we'll add) can pick it up
+    window.postMessage({
+      type: 'DATA_VISTA_SYNC_REQUEST',
+      fileId: this.activeFileId,
+      records: missingRecords
+    }, '*');
+
+    this.notificationService.notify(`Tactical Sync initiated for ${missingRecords.length} records...`, 'info');
+
+    // Subscribe to completion (we'll handle this via SignalR or a message listener)
+    // For now, we'll wait for the notification from SignalR that triggers loadFiles()
+    setTimeout(() => {
+      if (this.isSyncing) {
+        this.isSyncing = false;
+        this.notificationService.notify('Sync request dispatched to Amazon Intelligence Link.', 'success');
+      }
+    }, 5000);
   }
 
   async exportPdf() {

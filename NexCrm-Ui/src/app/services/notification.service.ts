@@ -37,6 +37,10 @@ export class NotificationService {
     return this.notificationSubject.asObservable();
   }
 
+  notify(message: string, type: string = 'info') {
+    this.notificationSubject.next({ message, type });
+  }
+
   clearNotification() {
     this.notificationSubject.next(null);
   }
