@@ -11,7 +11,7 @@ export class PdfExportService {
 
   constructor(private pivotEngine: PivotEngineService) {}
 
-  async exportIntelligenceReport(records: any[], fileName: string) {
+  async exportIntelligenceReport(records: any[], fileName: string, charts?: { bar?: string, line?: string }) {
     const doc = new jsPDF('p', 'mm', 'a4');
     const timestamp = new Date().toLocaleString();
 
@@ -136,10 +136,33 @@ export class PdfExportService {
         }
       });
 
+      // --- ADD CHARTS (IF PROVIDED) ---
+      if (charts && charts.bar && charts.line) {
+        let finalY = (doc as any).lastAutoTable.finalY + 10;
+        
+        // Overflow protection: If charts don't fit, add a new page
+        if (finalY + 70 > 280) {
+          doc.addPage();
+          this.addHeader(doc, `${cat} VISUAL ANALYTICS`, fileName, timestamp);
+          finalY = 55;
+        }
+
+        // Add a title for visual analytics
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(44, 62, 80);
+        doc.text('Visual Performance Data', 14, finalY);
+
+        // Bar Chart
+        doc.addImage(charts.bar, 'PNG', 14, finalY + 5, 90, 60);
+        // Line Chart
+        doc.addImage(charts.line, 'PNG', 106, finalY + 5, 90, 60);
+      }
+
       this.addFooter(doc);
     }
 
-    doc.save(`VECARE_Intelligence_${fileName.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`);
+    doc.save(`VECARE_Performance_Report_${fileName.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`);
   }
 
   private addHeader(doc: jsPDF, title: string, fileName: string, timestamp: string) {

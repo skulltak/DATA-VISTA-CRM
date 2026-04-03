@@ -433,8 +433,17 @@ export class FileViewerComponent implements OnInit {
 
   async exportPdf() {
     if (!this.activeFile || this.parsedRecords.length === 0) return;
+    
+    const chartImages: { bar?: string, line?: string } = {};
+    if (this.charts['bar']) {
+      chartImages.bar = this.charts['bar'].toBase64Image();
+    }
+    if (this.charts['line']) {
+      chartImages.line = this.charts['line'].toBase64Image();
+    }
+
     try {
-      await this.pdfExportService.exportIntelligenceReport(this.parsedRecords, this.activeFile.name);
+      await this.pdfExportService.exportIntelligenceReport(this.parsedRecords, this.activeFile.name, chartImages);
     } catch (e) {
       alert('PDF_EXPORT_ERROR: ' + e);
     }
