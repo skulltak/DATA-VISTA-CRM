@@ -17,8 +17,9 @@ Chart.register(...registerables);
   styleUrl: './pivot.css'
 })
 export class PivotComponent implements OnInit, AfterViewInit {
-  @ViewChild('pivotChart') pivotChartCanvas!: ElementRef;
-  private chart: any;
+  @ViewChild('barChart') barChartCanvas!: ElementRef;
+  @ViewChild('lineChart') lineChartCanvas!: ElementRef;
+  private charts: { [key: string]: any } = {};
 
   files: any[] = [];
   selectedFileId = '';
@@ -31,6 +32,7 @@ export class PivotComponent implements OnInit, AfterViewInit {
   
   aggregationType = 'sum';
   chartType = 'table'; 
+  selectedChartMetric = '';
 
   pivotData: any[] = [];
   columnHeaders: string[] = [];
@@ -114,9 +116,13 @@ export class PivotComponent implements OnInit, AfterViewInit {
         this.columnHeaders = this.extractColumnHeaders(data);
         this.isLoading = false;
         
-        if (this.chartType !== 'table') {
-          setTimeout(() => this.renderChart(), 0);
+        // Default metric for charts
+        const metrics = this.metricHeaders();
+        if (metrics.length > 0 && !this.selectedChartMetric) {
+          this.selectedChartMetric = metrics[0];
         }
+
+        setTimeout(() => this.renderVisualAnalytics(), 100);
       },
       error: () => {
         this.isLoading = false;
@@ -124,27 +130,41 @@ export class PivotComponent implements OnInit, AfterViewInit {
     });
   }
 
-  renderChart() {
-    if (this.chart) {
-      this.chart.destroy();
+  renderVisualAnalytics() {
+    const metrics = this.metricHeaders();
+    if (metrics.length === 0) return;
+    
+    // Default to first metric if not selected
+    if (!this.selectedChartMetric) this.selectedChartMetric = metrics[0];
+
+    this.renderChart('bar', this.barChartCanvas);
+    this.renderChart('line', this.lineChartCanvas);
+  }
+
+  private renderChart(type: 'bar' | 'line', canvas: ElementRef) {
+    if (this.charts[type]) {
+      this.charts[type].destroy();
     }
 
-    if (!this.pivotChartCanvas) return;
+    if (!canvas) return;
 
-    const ctx = this.pivotChartCanvas.nativeElement.getContext('2d');
+    const ctx = canvas.nativeElement.getContext('2d');
     const labels = this.pivotData.map(d => d.key);
+    const metric = this.selectedChartMetric;
     
-    // For simplicity, we use the first value in each row's values object
-    // or sum them up if multiple columns exist
     const datasets = this.columnHeaders.map((col, idx) => ({
-      label: col,
-      data: this.pivotData.map(d => d.values[col] || 0),
-      backgroundColor: idx === 0 ? '#6366f1' : idx === 1 ? '#22d3ee' : '#f59e0b',
-      borderRadius: 4
+      label: col + ' (' + metric + ')',
+      data: this.pivotData.map(d => d.values[col]?.[metric] || 0),
+      backgroundColor: idx % 3 === 0 ? '#6366f1' : idx % 3 === 1 ? '#22d3ee' : '#f59e0b',
+      borderColor: idx % 3 === 0 ? '#6366f1' : idx % 3 === 1 ? '#22d3ee' : '#f59e0b',
+      borderWidth: 2,
+      fill: type === 'line' ? false : true,
+      tension: 0.4,
+      borderRadius: type === 'bar' ? 4 : 0
     }));
 
-    this.chart = new Chart(ctx, {
-      type: this.chartType === 'bar' ? 'bar' : 'line',
+    this.charts[type] = new Chart(ctx, {
+      type: type,
       data: {
         labels: labels,
         datasets: datasets
@@ -155,12 +175,29 @@ export class PivotComponent implements OnInit, AfterViewInit {
         plugins: {
           legend: {
             position: 'top',
-            labels: { color: '#94a3b8' }
+            labels: { 
+              color: '#94a3b8',
+              usePointStyle: true,
+              font: { size: 10 }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#1e293b',
+            titleColor: '#f8fafc',
+            bodyColor: '#94a3b8',
+            borderColor: '#334155',
+            borderWidth: 1
           }
         },
         scales: {
-          x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-          y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          x: { 
+            ticks: { color: '#94a3b8', font: { size: 10 } }, 
+            grid: { color: 'rgba(255,255,255,0.03)' } 
+          },
+          y: { 
+            ticks: { color: '#94a3b8', font: { size: 10 } }, 
+            grid: { color: 'rgba(255,255,255,0.03)' } 
+          }
         }
       }
     });
@@ -251,8 +288,9 @@ export class PivotComponent implements OnInit, AfterViewInit {
 
       // Tab 3: Analytics (Chart Image)
       const chartSheet = workbook.addWorksheet('Analytics');
-      if (this.chart) {
-        const base64Image = this.chart.toBase64Image();
+      const exportChart = this.charts['bar'] || this.charts['line'];
+      if (exportChart) {
+        const base64Image = exportChart.toBase64Image();
         const imageId = workbook.addImage({
           base64: base64Image,
           extension: 'png',
