@@ -160,6 +160,40 @@
         </table>
       </ng-template>
       <ng-container *ngTemplateOutlet="pivotTable; context: { data: activePivots.summary }"></ng-container>
+
+      <!-- Visual Analytics Dashboard -->
+      <div class="visual-analytics-dashboard" style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--accent);">Visual Analytics</h3>
+            <p style="margin: 4px 0 0; font-size: 12px; color: var(--text-muted);">Graphical breakdown of job performance across branches</p>
+          </div>
+        </div>
+
+        <div class="analytics-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <!-- Bar Chart Card -->
+          <div class="chart-card" style="background: rgba(255,255,255,0.01); border: 1px solid var(--border); border-radius: 16px; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">DISTRIBUTION (BAR)</span>
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: #6366f1; box-shadow: 0 0 10px #6366f1;"></div>
+            </div>
+            <div style="height: 350px; position: relative;">
+              <canvas #barChart></canvas>
+            </div>
+          </div>
+
+          <!-- Line Chart Card -->
+          <div class="chart-card" style="background: rgba(255,255,255,0.01); border: 1px solid var(--border); border-radius: 16px; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">TREND ANALYSIS (LINE)</span>
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: #22d3ee; box-shadow: 0 0 10px #22d3ee;"></div>
+            </div>
+            <div style="height: 350px; position: relative;">
+              <canvas #lineChart></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

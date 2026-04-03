@@ -7,6 +7,10 @@ import { NotificationService } from '../../services/notification.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { PdfExportService } from '../../services/pdf-export.service';
+import { Chart, registerables } from 'chart.js';
+import { ViewChild } from '@angular/core';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-file-viewer',
@@ -16,6 +20,10 @@ import { PdfExportService } from '../../services/pdf-export.service';
   styleUrl: './file-viewer.css'
 })
 export class FileViewerComponent implements OnInit {
+  @ViewChild('barChart') barChartCanvas!: any;
+  @ViewChild('lineChart') lineChartCanvas!: any;
+  private charts: { [key: string]: any } = {};
+
   files: ParsedFile[] = [];
   
   // Viewer State
@@ -189,7 +197,95 @@ export class FileViewerComponent implements OnInit {
     
     if (this.activePivots && this.activePivots.summary.rows.length > 0) {
       this.viewMode = 'pivots';
+      setTimeout(() => this.renderVisualAnalytics(), 100);
     }
+  }
+
+  renderVisualAnalytics() {
+    if (!this.activePivots || !this.activePivots.summary.rows.length) return;
+
+    this.renderChart('bar', this.barChartCanvas);
+    this.renderChart('line', this.lineChartCanvas);
+  }
+
+  private renderChart(type: 'bar' | 'line', canvas: any) {
+    if (this.charts[type]) {
+      this.charts[type].destroy();
+    }
+
+    if (!canvas) return;
+
+    const ctx = canvas.nativeElement.getContext('2d');
+    const data = this.activePivots!.summary.rows;
+    const labels = data.map(d => d.state);
+
+    const datasets = [
+      {
+        label: 'COMPLETED',
+        data: data.map(d => d.COMPLETED),
+        backgroundColor: '#6366f1',
+        borderColor: '#6366f1',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: type === 'line' ? false : true,
+        borderRadius: type === 'bar' ? 4 : 0
+      },
+      {
+        label: 'CANCELLED',
+        data: data.map(d => d.CANCELLED),
+        backgroundColor: '#f59e0b',
+        borderColor: '#f59e0b',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: type === 'line' ? false : true,
+        borderRadius: type === 'bar' ? 4 : 0
+      },
+      {
+        label: 'NOT_SERVICED',
+        data: data.map(d => d.NOT_SERVICED),
+        backgroundColor: '#ef4444',
+        borderColor: '#ef4444',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: type === 'line' ? false : true,
+        borderRadius: type === 'bar' ? 4 : 0
+      }
+    ];
+
+    this.charts[type] = new Chart(ctx, {
+      type: type,
+      data: {
+        labels: labels,
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#94a3b8', usePointStyle: true, font: { size: 10 } }
+          },
+          tooltip: {
+            backgroundColor: '#1e293b',
+            titleColor: '#f8fafc',
+            bodyColor: '#94a3b8',
+            borderColor: '#334155',
+            borderWidth: 1
+          }
+        },
+        scales: {
+          x: { 
+            ticks: { color: '#94a3b8', font: { size: 10 } }, 
+            grid: { color: 'rgba(255,255,255,0.03)' } 
+          },
+          y: { 
+            ticks: { color: '#94a3b8', font: { size: 10 } }, 
+            grid: { color: 'rgba(255,255,255,0.03)' } 
+          }
+        }
+      }
+    });
   }
 
   getPercentageClass(pct: number): string {
@@ -207,6 +303,7 @@ export class FileViewerComponent implements OnInit {
   onPivotFilterChange() {
     if (this.parsedRecords.length > 0) {
       this.activePivots = this.pivotEngine.generatePivots(this.parsedRecords, this.selectedPivotJobName, this.selectedCategory);
+      setTimeout(() => this.renderVisualAnalytics(), 100);
     }
   }
 
