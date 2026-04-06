@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const targetUrl = 'https://data-vista-crm.onrender.com';
+const targetUrl = 'https://data-vista-crm-1.onrender.com';
 const filesToUpdate = [
   'src/app/services/pivot.ts',
   'src/app/components/sidebar/sidebar.ts',
