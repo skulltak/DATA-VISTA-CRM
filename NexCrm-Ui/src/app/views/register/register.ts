@@ -240,18 +240,24 @@ export class RegisterComponent {
     this.loading = true;
     this.error = '';
     this.success = false;
+    console.log('Attempting registration for:', this.user.username);
     
     this.authService.register({
       username: this.user.username,
       password: this.user.password
     }).subscribe({
-      next: () => {
+      next: (res) => {
+        console.log('Registration successful');
         this.success = true;
         this.loading = false;
         setTimeout(() => this.router.navigate(['/login']), 2000);
       },
       error: (err) => {
-        this.error = err.error?.message || 'Registration failed. Try again.';
+        console.error('Registration error:', err);
+        this.error = err.error?.message || err.message || 'Registration failed. Try again.';
+        this.loading = false;
+      },
+      complete: () => {
         this.loading = false;
       }
     });

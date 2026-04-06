@@ -205,13 +205,19 @@ export class LoginComponent {
   onLogin() {
     this.loading = true;
     this.error = '';
+    console.log('Attempting login for:', this.credentials.username);
     
     this.authService.login(this.credentials).subscribe({
-      next: () => {
+      next: (res) => {
+        console.log('Login successful:', res.username);
         this.router.navigate(['/']);
       },
       error: (err) => {
-        this.error = err.error?.message || 'Login failed. Please check your credentials.';
+        console.error('Login error:', err);
+        this.error = err.error?.message || err.message || 'Login failed. Please check your credentials or connection.';
+        this.loading = false;
+      },
+      complete: () => {
         this.loading = false;
       }
     });
