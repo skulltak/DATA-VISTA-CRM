@@ -51,4 +51,7 @@ public class MongoDbContext
 
     public IMongoCollection<VoyagerFile> VoyagerFiles =>
         _db.GetCollection<VoyagerFile>("voyagerFiles");
+
+    public IMongoCollection<User> Users =>
+        _db.GetCollection<User>("users");
 }

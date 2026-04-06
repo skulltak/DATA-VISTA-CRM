@@ -9,11 +9,15 @@ import { PivotComponent } from './views/pivot/pivot';
 import { JopReportComponent } from './views/jop-report/jop-report';
 import { FileViewerComponent } from './views/file-viewer/file-viewer';
 import { FDSSComponent } from './views/fdss/fdss';
+import { LoginComponent } from './views/login/login';
+import { RegisterComponent } from './views/register/register';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
+    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
@@ -26,5 +30,8 @@ export const routes: Routes = [
       { path: 'file-viewer', component: FileViewerComponent },
       { path: 'fdss', component: FDSSComponent },
     ]
-  }
+  },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: '**', redirectTo: '' }
 ];

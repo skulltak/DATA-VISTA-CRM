@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using NexCrm.Api.Data;
@@ -5,7 +6,8 @@ using NexCrm.Api.Models;
 
 namespace NexCrm.Api.Controllers;
 
-[ApiController]
+[Authorize]
+    [ApiController]
 [Route("api/[controller]")]
 public class DealsController : ControllerBase
 {
@@ -56,3 +58,4 @@ public class DealsController : ControllerBase
         return NoContent();
     }
 }
+

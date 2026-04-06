@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using ExcelDataReader;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
@@ -10,7 +11,8 @@ using NexCrm.Api.Hubs;
 
 namespace NexCrm.Api.Controllers;
 
-[ApiController]
+[Authorize]
+    [ApiController]
 [Route("api/[controller]")]
 public class ImportController : ControllerBase
 {
@@ -154,3 +156,4 @@ public class ImportController : ControllerBase
         return Ok(result);
     }
 }
+

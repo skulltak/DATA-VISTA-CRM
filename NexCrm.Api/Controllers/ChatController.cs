@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
 
 namespace NexCrm.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [Microsoft.AspNetCore.Authorization.AllowAnonymous]
@@ -105,3 +107,4 @@ namespace NexCrm.Api.Controllers
         public string Message { get; set; } = string.Empty;
     }
 }
+

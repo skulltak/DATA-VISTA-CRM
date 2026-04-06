@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using NexCrm.Api.Data;
@@ -6,7 +7,8 @@ using System.Text.Json;
 
 namespace NexCrm.Api.Controllers;
 
-[ApiController]
+[Authorize]
+    [ApiController]
 [Route("api/[controller]")]
 public class VoyagerController : ControllerBase
 {
@@ -90,3 +92,4 @@ public class VoyagerController : ControllerBase
         return Ok();
     }
 }
+
