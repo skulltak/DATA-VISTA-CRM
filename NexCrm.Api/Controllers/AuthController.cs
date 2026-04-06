@@ -22,6 +22,12 @@ namespace NexCrm.Api.Controllers
             _configuration = configuration;
         }
 
+        [HttpGet("ping")]
+        public IActionResult Ping()
+        {
+            return Ok(new { message = "Auth API is alive", time = DateTime.UtcNow });
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] AuthRequest request)
         {

@@ -17,10 +17,19 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
+    console.log('AuthService initialized with API URL:', this.apiUrl);
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
       this.currentUserSubject.next(JSON.parse(savedUser));
     }
+    this.checkConnection();
+  }
+
+  checkConnection(): void {
+    this.http.get(`${this.apiUrl}/ping`).subscribe({
+      next: (res) => console.log('Backend connection verified:', res),
+      error: (err) => console.error('Backend connection FAILED. API URL may be incorrect or server is down.', err)
+    });
   }
 
   public get currentUserValue(): AuthResponse | null {

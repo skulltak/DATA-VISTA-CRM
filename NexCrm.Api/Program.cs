@@ -24,10 +24,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "https://nexcrm-ui.onrender.com", "https://datavistavecare.netlify.app")
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials() // Required for SignalR
               .WithExposedHeaders("X-Total-Count");
     });
 });
@@ -75,6 +74,22 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var error = exceptionHandlerPathFeature?.Error;
+        await context.Response.WriteAsJsonAsync(new { 
+            message = "Internal Server Error", 
+            error = error?.Message,
+            detail = error?.InnerException?.Message 
+        });
+    });
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
