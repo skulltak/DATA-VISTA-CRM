@@ -106,6 +106,8 @@ if (app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+app.MapGet("/", () => Results.Ok(new { status = "API is running", version = "1.0.0", time = DateTime.UtcNow }));
+
 app.MapControllers();
 app.MapHub<NexCrm.Api.Hubs.NotificationHub>("/notificationHub"); // Map Hub
 

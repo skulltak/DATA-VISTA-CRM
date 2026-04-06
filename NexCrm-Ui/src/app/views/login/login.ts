@@ -214,7 +214,8 @@ export class LoginComponent {
       },
       error: (err) => {
         console.error('Login error:', err);
-        this.error = err.error?.message || err.message || 'Login failed. Please check your credentials or connection.';
+        const statusMsg = err.status ? `(Status: ${err.status}) ` : '';
+        this.error = `${statusMsg}${err.error?.message || err.message || 'Login failed. Please check your credentials or connection.'}`;
         this.loading = false;
       },
       complete: () => {

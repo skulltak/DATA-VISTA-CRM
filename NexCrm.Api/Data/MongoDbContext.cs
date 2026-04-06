@@ -23,16 +23,17 @@ public class MongoDbContext
         
         try 
         {
+            logger.LogInformation("Attempting to connect to MongoDB...");
             var client = new MongoClient(connectionString);
             _db = client.GetDatabase("NexCrmDb");
             
-            // Test connection immediately
-            _db.RunCommand((Command<BsonDocument>)"{ping:1}");
-            logger.LogInformation("Successfully connected to MongoDB database 'NexCrmDb'.");
+            // Test connection immediately with a specific timeout
+            var ping = _db.RunCommand((Command<BsonDocument>)"{ping:1}");
+            logger.LogInformation("Successfully connected to MongoDB database 'NexCrmDb'. Ping Result: {Ping}", ping.ToString());
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to connect to MongoDB. Check connection string and firewall/IP whitelist.");
+            logger.LogCritical(ex, "Failed to connect to MongoDB during startup. Connection String Source: {Source}", !string.IsNullOrEmpty(envVar) ? "Env Var" : "appsettings");
             throw; // Re-throw to prevent application from starting with invalid DB state
         }
     }

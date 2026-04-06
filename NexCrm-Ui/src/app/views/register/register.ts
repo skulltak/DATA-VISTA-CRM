@@ -254,7 +254,8 @@ export class RegisterComponent {
       },
       error: (err) => {
         console.error('Registration error:', err);
-        this.error = err.error?.message || err.message || 'Registration failed. Try again.';
+        const statusMsg = err.status ? `(Status: ${err.status}) ` : '';
+        this.error = `${statusMsg}${err.error?.message || err.message || 'Registration failed. Try again.'}`;
         this.loading = false;
       },
       complete: () => {
