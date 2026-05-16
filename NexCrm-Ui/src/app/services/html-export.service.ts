@@ -11,7 +11,7 @@ export class HtmlExportService {
 
   async exportHtmlDashboard(records: any[], fileName: string) {
     const timestamp = new Date().toLocaleString();
-    const categories = ['ALL', 'AC', 'TVLA'];
+    const categories: ('ALL' | 'TVLA' | 'AC')[] = ['ALL', 'AC', 'TVLA'];
     const dashboardData: any = {};
 
     for (const cat of categories) {
