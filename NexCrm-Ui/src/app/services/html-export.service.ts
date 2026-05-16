@@ -39,7 +39,7 @@ export class HtmlExportService {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Data Vista CRM - \${fileName} Dashboard</title>
+  <title>Data Vista CRM - ${fileName} Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -258,7 +258,7 @@ export class HtmlExportService {
     <header>
       <div class="header-info">
         <h1>FDSS Operations Dashboard</h1>
-        <p>Project: \${fileName} &nbsp;|&nbsp; Generated: \${timestamp}</p>
+        <p>Project: ${fileName} &nbsp;|&nbsp; Generated: ${timestamp}</p>
       </div>
       <div>
         <img src="https://via.placeholder.com/120x40/0f172a/60a5fa?text=DATA+VISTA" alt="Logo" style="border-radius:4px;">
@@ -268,28 +268,28 @@ export class HtmlExportService {
     <div class="stats-summary">
       <div class="stat-card total">
         <h3>Total Records</h3>
-        <p class="value">\${grandTotal.TOTAL}</p>
+        <p class="value">${grandTotal.TOTAL}</p>
       </div>
       <div class="stat-card completed">
         <h3>Completed</h3>
-        <p class="value">\${grandTotal.COMPLETED}</p>
+        <p class="value">${grandTotal.COMPLETED}</p>
       </div>
       <div class="stat-card percentage">
         <h3>Performance Score</h3>
-        <p class="value">\${grandTotal.PERCENTAGE}%</p>
+        <p class="value">${grandTotal.PERCENTAGE}%</p>
       </div>
     </div>
 
     <div class="top-performers">
       <h2>Top 5 Performers 🏆</h2>
       <div class="performer-cards">
-        \${topPerformers.map((p, index) => \`
+        ${topPerformers.map((p, index) => `
           <div class="p-card">
-            <h4>#\${index + 1} \${p.state}</h4>
-            <p>Score: <strong>\${p.PERCENTAGE}%</strong></p>
-            <p>Completed: \${p.COMPLETED} / \${p.TOTAL}</p>
+            <h4>#${index + 1} ${p.state}</h4>
+            <p>Score: <strong>${p.PERCENTAGE}%</strong></p>
+            <p>Completed: ${p.COMPLETED} / ${p.TOTAL}</p>
           </div>
-        \`).join('')}
+        `).join('')}
       </div>
     </div>
 
@@ -319,25 +319,25 @@ export class HtmlExportService {
           </tr>
         </thead>
         <tbody>
-          \${allRows.map(row => \`
+          ${allRows.map(row => `
             <tr>
-              <td>\${row.state}</td>
-              <td>\${row.COMPLETED || 0}</td>
-              <td>\${row.CANCELLED || 0}</td>
-              <td>\${row.NOT_SERVICED || 0}</td>
-              <td>\${row.FULFILLMENT_HOLD || 0}</td>
-              <td>\${row.TOTAL || 0}</td>
-              <td class="\${row.PERCENTAGE >= 80 ? 'pct-high' : row.PERCENTAGE >= 60 ? 'pct-mid' : 'pct-low'}">\${row.PERCENTAGE}%</td>
+              <td>${row.state}</td>
+              <td>${row.COMPLETED || 0}</td>
+              <td>${row.CANCELLED || 0}</td>
+              <td>${row.NOT_SERVICED || 0}</td>
+              <td>${row.FULFILLMENT_HOLD || 0}</td>
+              <td>${row.TOTAL || 0}</td>
+              <td class="${row.PERCENTAGE >= 80 ? 'pct-high' : row.PERCENTAGE >= 60 ? 'pct-mid' : 'pct-low'}">${row.PERCENTAGE}%</td>
             </tr>
-          \`).join('')}
+          `).join('')}
           <tr class="grand-total">
             <td>GRAND TOTAL</td>
-            <td>\${grandTotal.COMPLETED}</td>
-            <td>\${grandTotal.CANCELLED}</td>
-            <td>\${grandTotal.NOT_SERVICED}</td>
-            <td>\${grandTotal.FULFILLMENT_HOLD}</td>
-            <td>\${grandTotal.TOTAL}</td>
-            <td class="\${grandTotal.PERCENTAGE >= 80 ? 'pct-high' : grandTotal.PERCENTAGE >= 60 ? 'pct-mid' : 'pct-low'}">\${grandTotal.PERCENTAGE}%</td>
+            <td>${grandTotal.COMPLETED}</td>
+            <td>${grandTotal.CANCELLED}</td>
+            <td>${grandTotal.NOT_SERVICED}</td>
+            <td>${grandTotal.FULFILLMENT_HOLD}</td>
+            <td>${grandTotal.TOTAL}</td>
+            <td class="${grandTotal.PERCENTAGE >= 80 ? 'pct-high' : grandTotal.PERCENTAGE >= 60 ? 'pct-mid' : 'pct-low'}">${grandTotal.PERCENTAGE}%</td>
           </tr>
         </tbody>
       </table>
@@ -346,10 +346,10 @@ export class HtmlExportService {
 
   <script>
     // Data Injected from Angular
-    const labels = \${JSON.stringify(labels)};
-    const completedData = \${JSON.stringify(completedData)};
-    const cancelledData = \${JSON.stringify(cancelledData)};
-    const notServicedData = \${JSON.stringify(notServicedData)};
+    const labels = ${JSON.stringify(labels)};
+    const completedData = ${JSON.stringify(completedData)};
+    const cancelledData = ${JSON.stringify(cancelledData)};
+    const notServicedData = ${JSON.stringify(notServicedData)};
 
     // Chart.js Default Config
     Chart.defaults.color = '#94a3b8';
@@ -420,6 +420,6 @@ export class HtmlExportService {
     `;
 
     const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-    saveAs(blob, \`Data_Vista_Dashboard_\${fileName}_\${new Date().getTime()}.html\`);
+    saveAs(blob, `Data_Vista_Dashboard_${fileName}_${new Date().getTime()}.html`);
   }
 }
