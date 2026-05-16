@@ -6,7 +6,7 @@ import { PivotEngineService, TriplePivotResult } from '../../services/pivot-engi
 import { NotificationService } from '../../services/notification.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { PdfExportService } from '../../services/pdf-export.service';
+import { HtmlExportService } from '../../services/html-export.service';
 import { Chart, registerables } from 'chart.js';
 import { ViewChild } from '@angular/core';
 
@@ -52,7 +52,7 @@ export class FileViewerComponent implements OnInit {
     private pivotEngine: PivotEngineService,
     private notificationService: NotificationService,
     private router: Router,
-    private pdfExportService: PdfExportService
+    private htmlExportService: HtmlExportService
   ) {}
 
   async ngOnInit() {
@@ -431,21 +431,13 @@ export class FileViewerComponent implements OnInit {
     }, 5000);
   }
 
-  async exportPdf() {
+  async exportHtmlDashboard() {
     if (!this.activeFile || this.parsedRecords.length === 0) return;
     
-    const chartImages: { bar?: string, line?: string } = {};
-    if (this.charts['bar']) {
-      chartImages.bar = this.charts['bar'].toBase64Image();
-    }
-    if (this.charts['line']) {
-      chartImages.line = this.charts['line'].toBase64Image();
-    }
-
     try {
-      await this.pdfExportService.exportIntelligenceReport(this.parsedRecords, this.activeFile.name, chartImages);
+      await this.htmlExportService.exportHtmlDashboard(this.parsedRecords, this.activeFile.name);
     } catch (e) {
-      alert('PDF_EXPORT_ERROR: ' + e);
+      alert('HTML_EXPORT_ERROR: ' + e);
     }
   }
 }

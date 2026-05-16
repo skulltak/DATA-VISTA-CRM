@@ -6,7 +6,7 @@ import { PivotEngineService, TriplePivotResult } from '../../services/pivot-engi
 import { NotificationService } from '../../services/notification.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { PdfExportService } from '../../services/pdf-export.service';
+import { HtmlExportService } from '../../services/html-export.service';
 
 @Component({
   selector: 'app-fdss',
@@ -45,7 +45,7 @@ export class FDSSComponent implements OnInit {
     private pivotEngine: PivotEngineService,
     private notificationService: NotificationService,
     private router: Router,
-    private pdfExportService: PdfExportService
+    private htmlExportService: HtmlExportService
   ) {}
 
   async ngOnInit() {
@@ -306,13 +306,13 @@ export class FDSSComponent implements OnInit {
     }
   }
 
-  async exportPdf() {
+  async exportHtmlDashboard() {
     if (!this.activeFile || this.filteredRecords.length === 0) return;
     try {
-      // Use filteredRecords to ensure comparison logic is reflected in PDF
-      await this.pdfExportService.exportIntelligenceReport(this.filteredRecords, this.activeFile.name);
+      // Use filteredRecords to ensure comparison logic is reflected in the dashboard
+      await this.htmlExportService.exportHtmlDashboard(this.filteredRecords, this.activeFile.name);
     } catch (e) {
-      alert('PDF_EXPORT_ERROR: ' + e);
+      alert('HTML_EXPORT_ERROR: ' + e);
     }
   }
 }
