@@ -11,27 +11,132 @@ export class HtmlExportService {
 
   async exportHtmlDashboard(records: any[], fileName: string) {
     const timestamp = new Date().toLocaleString();
-    
-    // Get ALL category for Top 5
-    const allResult = this.pivotEngine.generatePivots(records, 'All', 'ALL');
-    const allRows = allResult?.summary?.rows || [];
-    const grandTotal = allResult?.summary?.grandTotal || { TOTAL: 0, COMPLETED: 0, PERCENTAGE: 0 };
-    
-    // Compute Top 5 Performers based on COMPLETED volume or PERCENTAGE
-    // We will use a combination: High percentage and high completed
-    // Let's sort by PERCENTAGE descending, then COMPLETED descending
-    const topPerformers = [...allRows]
-      .sort((a, b) => {
-        if (b.PERCENTAGE !== a.PERCENTAGE) return b.PERCENTAGE - a.PERCENTAGE;
-        return b.COMPLETED - a.COMPLETED;
-      })
-      .slice(0, 5);
+    const categories = ['ALL', 'AC', 'TVLA'];
+    const dashboardData: any = {};
 
-    // Get ALL data for the Table and Charts
-    const labels = allRows.map(r => r.state);
-    const completedData = allRows.map(r => r.COMPLETED || 0);
-    const cancelledData = allRows.map(r => r.CANCELLED || 0);
-    const notServicedData = allRows.map(r => r.NOT_SERVICED || 0);
+    for (const cat of categories) {
+      const result = this.pivotEngine.generatePivots(records, 'All', cat);
+      const rows = result?.summary?.rows || [];
+      const grandTotal = result?.summary?.grandTotal || { TOTAL: 0, COMPLETED: 0, PERCENTAGE: 0 };
+      
+      const topPerformers = [...rows]
+        .sort((a, b) => {
+          if (b.PERCENTAGE !== a.PERCENTAGE) return b.PERCENTAGE - a.PERCENTAGE;
+          return b.COMPLETED - a.COMPLETED;
+        })
+        .slice(0, 5);
+
+      const labels = rows.map(r => r.state);
+      const completedData = rows.map(r => r.COMPLETED || 0);
+      const cancelledData = rows.map(r => r.CANCELLED || 0);
+      const notServicedData = rows.map(r => r.NOT_SERVICED || 0);
+
+      dashboardData[cat] = {
+        title: cat === 'ALL' ? 'Unified Operations' : cat + ' Operations',
+        rows,
+        grandTotal,
+        topPerformers,
+        chartData: {
+          labels,
+          completedData,
+          cancelledData,
+          notServicedData
+        }
+      };
+    }
+
+    let sectionsHtml = '';
+    
+    for (const cat of categories) {
+      const data = dashboardData[cat];
+      if (!data.rows || data.rows.length === 0) continue;
+
+      sectionsHtml += `
+    <div class="category-section">
+      <div class="section-header">
+        <h2>${data.title}</h2>
+      </div>
+
+      <div class="stats-summary">
+        <div class="stat-card total">
+          <h3>Total Records</h3>
+          <p class="value">${data.grandTotal.TOTAL}</p>
+        </div>
+        <div class="stat-card completed">
+          <h3>Completed</h3>
+          <p class="value">${data.grandTotal.COMPLETED}</p>
+        </div>
+        <div class="stat-card percentage">
+          <h3>Performance Score</h3>
+          <p class="value">${data.grandTotal.PERCENTAGE}%</p>
+        </div>
+      </div>
+
+      <div class="top-performers">
+        <h2>Top 5 Performers 🏆</h2>
+        <div class="performer-cards">
+          ${data.topPerformers.map((p: any, index: number) => `
+            <div class="p-card">
+              <h4>#${index + 1} ${p.state}</h4>
+              <p>Score: <strong>${p.PERCENTAGE}%</strong></p>
+              <p>Completed: ${p.COMPLETED} / ${p.TOTAL}</p>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="table-container">
+        <h2>Detailed Analytics</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Region</th>
+              <th>Completed</th>
+              <th>Cancelled</th>
+              <th>Not Serviced</th>
+              <th>Hold</th>
+              <th>Total</th>
+              <th>%</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.rows.map((row: any) => `
+              <tr>
+                <td>${row.state}</td>
+                <td>${row.COMPLETED || 0}</td>
+                <td>${row.CANCELLED || 0}</td>
+                <td>${row.NOT_SERVICED || 0}</td>
+                <td>${row.FULFILLMENT_HOLD || 0}</td>
+                <td>${row.TOTAL || 0}</td>
+                <td class="${row.PERCENTAGE >= 80 ? 'pct-high' : row.PERCENTAGE >= 60 ? 'pct-mid' : 'pct-low'}">${row.PERCENTAGE}%</td>
+              </tr>
+            `).join('')}
+            <tr class="grand-total">
+              <td>GRAND TOTAL</td>
+              <td>${data.grandTotal.COMPLETED}</td>
+              <td>${data.grandTotal.CANCELLED}</td>
+              <td>${data.grandTotal.NOT_SERVICED}</td>
+              <td>${data.grandTotal.FULFILLMENT_HOLD}</td>
+              <td>${data.grandTotal.TOTAL}</td>
+              <td class="${data.grandTotal.PERCENTAGE >= 80 ? 'pct-high' : data.grandTotal.PERCENTAGE >= 60 ? 'pct-mid' : 'pct-low'}">${data.grandTotal.PERCENTAGE}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="chart-container">
+          <h2>Performance by Region (Bar)</h2>
+          <div style="height: 280px;"><canvas id="barChart-${cat}"></canvas></div>
+        </div>
+        <div class="chart-container">
+          <h2>Trend Analysis (Line)</h2>
+          <div style="height: 280px;"><canvas id="lineChart-${cat}"></canvas></div>
+        </div>
+      </div>
+    </div>
+      `;
+    }
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -80,6 +185,12 @@ export class HtmlExportService {
       margin-bottom: 2rem;
       padding-bottom: 1rem;
       border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      padding-top: 1rem;
     }
 
     .header-info h1 {
@@ -94,6 +205,28 @@ export class HtmlExportService {
       margin: 0;
       color: var(--text-muted);
       font-size: 0.9rem;
+    }
+
+    .category-section {
+      margin-bottom: 4rem;
+      padding-bottom: 2rem;
+      border-bottom: 2px dashed rgba(255,255,255,0.05);
+    }
+    .category-section:last-child {
+      border-bottom: none;
+    }
+
+    .section-header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+    .section-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #fff;
+      border-left: 4px solid var(--accent-blue);
+      padding-left: 1rem;
     }
 
     .stats-summary {
@@ -207,6 +340,7 @@ export class HtmlExportService {
       border-radius: 12px;
       padding: 1.5rem;
       overflow-x: auto;
+      margin-bottom: 2rem;
     }
 
     .table-container h2 {
@@ -265,125 +399,18 @@ export class HtmlExportService {
       </div>
     </header>
 
-    <div class="stats-summary">
-      <div class="stat-card total">
-        <h3>Total Records</h3>
-        <p class="value">${grandTotal.TOTAL}</p>
-      </div>
-      <div class="stat-card completed">
-        <h3>Completed</h3>
-        <p class="value">${grandTotal.COMPLETED}</p>
-      </div>
-      <div class="stat-card percentage">
-        <h3>Performance Score</h3>
-        <p class="value">${grandTotal.PERCENTAGE}%</p>
-      </div>
-    </div>
+    ${sectionsHtml}
 
-    <div class="top-performers">
-      <h2>Top 5 Performers 🏆</h2>
-      <div class="performer-cards">
-        ${topPerformers.map((p, index) => `
-          <div class="p-card">
-            <h4>#${index + 1} ${p.state}</h4>
-            <p>Score: <strong>${p.PERCENTAGE}%</strong></p>
-            <p>Completed: ${p.COMPLETED} / ${p.TOTAL}</p>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-
-    <div class="dashboard-grid">
-      <div class="chart-container">
-        <h2>Performance by Region (Bar)</h2>
-        <div style="height: 280px;"><canvas id="barChart"></canvas></div>
-      </div>
-      <div class="chart-container">
-        <h2>Trend Analysis (Line)</h2>
-        <div style="height: 280px;"><canvas id="lineChart"></canvas></div>
-      </div>
-    </div>
-
-    <div class="table-container">
-      <h2>Detailed Analytics</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Region</th>
-            <th>Completed</th>
-            <th>Cancelled</th>
-            <th>Not Serviced</th>
-            <th>Hold</th>
-            <th>Total</th>
-            <th>%</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${allRows.map(row => `
-            <tr>
-              <td>${row.state}</td>
-              <td>${row.COMPLETED || 0}</td>
-              <td>${row.CANCELLED || 0}</td>
-              <td>${row.NOT_SERVICED || 0}</td>
-              <td>${row.FULFILLMENT_HOLD || 0}</td>
-              <td>${row.TOTAL || 0}</td>
-              <td class="${row.PERCENTAGE >= 80 ? 'pct-high' : row.PERCENTAGE >= 60 ? 'pct-mid' : 'pct-low'}">${row.PERCENTAGE}%</td>
-            </tr>
-          `).join('')}
-          <tr class="grand-total">
-            <td>GRAND TOTAL</td>
-            <td>${grandTotal.COMPLETED}</td>
-            <td>${grandTotal.CANCELLED}</td>
-            <td>${grandTotal.NOT_SERVICED}</td>
-            <td>${grandTotal.FULFILLMENT_HOLD}</td>
-            <td>${grandTotal.TOTAL}</td>
-            <td class="${grandTotal.PERCENTAGE >= 80 ? 'pct-high' : grandTotal.PERCENTAGE >= 60 ? 'pct-mid' : 'pct-low'}">${grandTotal.PERCENTAGE}%</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
   </div>
 
   <script>
     // Data Injected from Angular
-    const labels = ${JSON.stringify(labels)};
-    const completedData = ${JSON.stringify(completedData)};
-    const cancelledData = ${JSON.stringify(cancelledData)};
-    const notServicedData = ${JSON.stringify(notServicedData)};
+    const dashboardData = ${JSON.stringify(dashboardData)};
+    const categories = ['ALL', 'AC', 'TVLA'];
 
     // Chart.js Default Config
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
-
-    const datasets = [
-      {
-        label: 'COMPLETED',
-        data: completedData,
-        backgroundColor: '#10b981',
-        borderColor: '#10b981',
-        borderWidth: 2,
-        tension: 0.4,
-        borderRadius: 4
-      },
-      {
-        label: 'CANCELLED',
-        data: cancelledData,
-        backgroundColor: '#f59e0b',
-        borderColor: '#f59e0b',
-        borderWidth: 2,
-        tension: 0.4,
-        borderRadius: 4
-      },
-      {
-        label: 'NOT_SERVICED',
-        data: notServicedData,
-        backgroundColor: '#ef4444',
-        borderColor: '#ef4444',
-        borderWidth: 2,
-        tension: 0.4,
-        borderRadius: 4
-      }
-    ];
 
     const chartOptions = {
       responsive: true,
@@ -398,22 +425,63 @@ export class HtmlExportService {
       }
     };
 
-    // Render Bar Chart
-    new Chart(document.getElementById('barChart'), {
-      type: 'bar',
-      data: { labels, datasets },
-      options: chartOptions
+    categories.forEach(cat => {
+      const data = dashboardData[cat];
+      if (!data || !data.chartData || !data.chartData.labels || data.chartData.labels.length === 0) return;
+
+      const cData = data.chartData;
+      const datasets = [
+        {
+          label: 'COMPLETED',
+          data: cData.completedData,
+          backgroundColor: '#10b981',
+          borderColor: '#10b981',
+          borderWidth: 2,
+          tension: 0.4,
+          borderRadius: 4
+        },
+        {
+          label: 'CANCELLED',
+          data: cData.cancelledData,
+          backgroundColor: '#f59e0b',
+          borderColor: '#f59e0b',
+          borderWidth: 2,
+          tension: 0.4,
+          borderRadius: 4
+        },
+        {
+          label: 'NOT_SERVICED',
+          data: cData.notServicedData,
+          backgroundColor: '#ef4444',
+          borderColor: '#ef4444',
+          borderWidth: 2,
+          tension: 0.4,
+          borderRadius: 4
+        }
+      ];
+
+      const barElem = document.getElementById('barChart-' + cat);
+      if (barElem) {
+        new Chart(barElem, {
+          type: 'bar',
+          data: { labels: cData.labels, datasets },
+          options: chartOptions
+        });
+      }
+
+      const lineElem = document.getElementById('lineChart-' + cat);
+      if (lineElem) {
+        new Chart(lineElem, {
+          type: 'line',
+          data: { 
+            labels: cData.labels, 
+            datasets: datasets.map(d => ({ ...d, fill: false, borderRadius: 0 })) 
+          },
+          options: chartOptions
+        });
+      }
     });
 
-    // Render Line Chart
-    new Chart(document.getElementById('lineChart'), {
-      type: 'line',
-      data: { 
-        labels, 
-        datasets: datasets.map(d => ({ ...d, fill: false, borderRadius: 0 })) 
-      },
-      options: chartOptions
-    });
   </script>
 </body>
 </html>
