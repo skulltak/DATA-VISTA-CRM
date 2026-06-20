@@ -1,329 +1,81 @@
-<div class="dashboard-header">
-  <div class="page-title-group glitch-enter" style="display: flex; align-items: center; gap: 32px; margin-bottom: 24px;">
-    <div style="clip-path: polygon(0 0, 100% 0, 100% 82%, 92% 100%, 0 100%); line-height: 0;">
-      <img src="cmd_logo.png" alt="Data Vista" style="height: 220px; mix-blend-mode: screen;" />
-    </div>
-    <div>
-      <span style="font-family: 'Playfair Display', 'Merriweather', 'Georgia', serif; font-size: 5rem; font-style: italic; color: #ffffff; font-weight: 500; letter-spacing: 2px;">Welcome</span>
-      <p class="tagline">Your Command Center for Amazon Service Operations</p>
-    </div>
-  </div>
-</div>
-
-<!-- SYSTEM ARCHITECTURE OVERVIEW -->
-<div class="arch-panel fade-up" style="animation-delay: 0.1s">
-  <div class="arch-header">
-    <div class="arch-badge">SYSTEM ARCHITECTURE</div>
-    <div class="arch-status">
-      <span class="live-dot"></span> All Systems Operational
-    </div>
-  </div>
-  <div class="arch-nodes">
-    <div class="arch-node">
-      <div class="node-icon node-amazon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-      </div>
-      <span class="node-label">Amazon Seller Central</span>
-      <span class="node-tag">DATA SOURCE</span>
-    </div>
-    <div class="arch-connector">
-      <div class="connector-line animated"></div>
-      <span class="connector-label">Auto-Fetch API</span>
-    </div>
-    <div class="arch-node">
-      <div class="node-icon node-watcher">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-      </div>
-      <span class="node-label">Vista Sync Ext.</span>
-      <span class="node-tag">BACKGROUND</span>
-    </div>
-    <div class="arch-connector">
-      <div class="connector-line animated delay-1"></div>
-      <span class="connector-label">Direct DB Push</span>
-    </div>
-    <div class="arch-node">
-      <div class="node-icon node-crm">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-      </div>
-      <span class="node-label">Data Vista CRM</span>
-      <span class="node-tag">DASHBOARD</span>
-    </div>
-    <div class="arch-connector">
-      <div class="connector-line animated delay-2"></div>
-      <span class="connector-label">Tactical Sync</span>
-    </div>
-    <div class="arch-node">
-      <div class="node-icon node-fdss">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      </div>
-      <span class="node-label">FDSS Match Engine</span>
-      <span class="node-tag">ANALYTICS</span>
-    </div>
-    <div class="arch-connector">
-      <div class="connector-line animated delay-3"></div>
-      <span class="connector-label">Store Records</span>
-    </div>
-    <div class="arch-node">
-      <div class="node-icon node-db">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-      </div>
-      <span class="node-label">MongoDB Atlas</span>
-      <span class="node-tag">DATABASE</span>
-    </div>
-  </div>
-</div>
-
-<!-- VISTA PORTAL FLOW -->
-<div class="flow-section fade-up" style="animation-delay: 0.2s">
-  <div class="flow-section-header">
-    <div class="flow-section-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-    </div>
-    <div>
-      <h2 class="flow-title">Automated Next-Gen Sync Workflow</h2>
-      <p class="flow-subtitle">Our system can automatically fetch data from Amazon Seller Central directly into your CRM.</p>
-    </div>
-    <div class="flow-badge">4 STEPS</div>
+<div class="dashboard-container">
+  <div class="header-section">
+    <h2>Sales Dashboard</h2>
+    <p>Overview of imported sales data and revenue split.</p>
   </div>
 
-  <div class="flow-steps">
-    <div class="flow-step step-enter" style="animation-delay: 0.3s">
-      <div class="step-number">1</div>
-      <div class="step-content">
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading Dashboard Data...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <!-- KPI Cards Section -->
+    <div class="kpi-grid">
+      <div class="kpi-card overall">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-info">
+          <h3>Overall Revenue</h3>
+          <p class="value">{{ kpis.overallRevenue | currency:'INR':'symbol':'1.0-0' }}</p>
+          <span class="subtitle">Based on Activation Value</span>
         </div>
-        <h4>Open Vista Portal</h4>
-        <p>Click <strong>"Vista Portal"</strong> in the sidebar. This opens Amazon Seller Central in a new tab.</p>
-        <div class="step-tag">SIDEBAR → VISTA PORTAL</div>
       </div>
-    </div>
-
-    <div class="flow-connector">
-      <div class="connector-pulse"></div>
-    </div>
-
-    <div class="flow-step step-enter" style="animation-delay: 0.4s">
-      <div class="step-number">2</div>
-      <div class="step-content">
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-        </div>
-        <h4>Authenticate on Amazon</h4>
-        <p>Log into Amazon Seller Central with your credentials. The CRM does <strong>not</strong> need your Amazon password.</p>
-        <div class="step-tag">SECURE LOGIN</div>
-      </div>
-    </div>
-
-    <div class="flow-connector">
-      <div class="connector-pulse"></div>
-    </div>
-
-    <div class="flow-step step-enter" style="animation-delay: 0.5s">
-      <div class="step-number">3</div>
-      <div class="step-content">
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        </div>
-        <h4>Auto-Fetch Data</h4>
-        <p>The <strong>Data Vista Sync</strong> extension automatically extracts and fetches data from Amazon in the background!</p>
-        <div class="step-tag" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);">✨ FULLY AUTOMATED</div>
-      </div>
-    </div>
-
-    <div class="flow-connector">
-      <div class="connector-pulse"></div>
-    </div>
-
-    <div class="flow-step highlight popup-upload-zone step-enter" 
-         [class.drag-over]="isDragging"
-         (dragover)="onDragOver($event)" 
-         (dragleave)="onDragLeave($event)" 
-         (drop)="onDrop($event)"
-         (click)="fileInput.click()"
-         style="animation-delay: 0.6s; cursor: pointer; position: relative;">
       
-      <input type="file" accept=".xlsx, .csv" (change)="onFileSelected($event)" #fileInput hidden>
-
-      <div class="step-number pulse" [class.uploading]="isUploading">4</div>
-      <div class="step-content">
-        <div class="step-icon success">
-          <svg *ngIf="!isUploading" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <svg *ngIf="isUploading" style="animation: spin 1s linear infinite;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="10 20"/></svg>
+      <div class="kpi-card store">
+        <div class="kpi-icon">🏪</div>
+        <div class="kpi-info">
+          <h3>Store Share (45%)</h3>
+          <p class="value">{{ kpis.storeShare | currency:'INR':'symbol':'1.0-0' }}</p>
+          <span class="subtitle">Revenue allocated to Store</span>
         </div>
-        <h4>{{ isUploading ? 'Uploading & Parsing...' : 'Instant Auto-Import (or Drop File)' }}</h4>
-        <p>Your fetched Amazon data instantly syncs. You can also drag & drop files here manually as a backup.</p>
-        <div class="step-tag success-tag" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: rgba(56, 189, 248, 0.2);">⚡ REAL-TIME PIPELINE</div>
       </div>
-    </div>
-  </div>
-</div>
 
-<!-- FILE VOYAGER FLOW -->
-<div class="flow-section fade-up" style="animation-delay: 0.3s">
-  <div class="flow-section-header">
-    <div class="flow-section-icon voyager">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-    </div>
-    <div>
-      <h2 class="flow-title">File Voyager — Data Operations</h2>
-      <p class="flow-subtitle">View, scroll, edit and analyze imported spreadsheet data</p>
-    </div>
-    <div class="flow-badge voyager-badge">4 STEPS</div>
-  </div>
-
-  <div class="flow-steps horizontal">
-    <div class="flow-step-h step-enter" style="animation-delay: 0.4s">
-      <div class="step-number-h">1</div>
-      <div class="step-icon-h">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      </div>
-      <h5>Open File</h5>
-      <p>Go to <strong>File Voyager</strong> and click on any imported file card.</p>
-    </div>
-
-    <div class="flow-arrow-h">
-      <div class="arrow-animated"></div>
-    </div>
-
-    <div class="flow-step-h step-enter" style="animation-delay: 0.5s">
-      <div class="step-number-h">2</div>
-      <div class="step-icon-h">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
-      </div>
-      <h5>Scroll & Browse</h5>
-      <p>Scroll <strong>horizontally</strong> and <strong>vertically</strong> to explore all data.</p>
-    </div>
-
-    <div class="flow-arrow-h">
-      <div class="arrow-animated"></div>
-    </div>
-
-    <div class="flow-step-h step-enter" style="animation-delay: 0.6s">
-      <div class="step-number-h">3</div>
-      <div class="step-icon-h">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      </div>
-      <h5>Edit Data</h5>
-      <p>Click <strong>"Edit Data"</strong> to unlock cells. Save when done.</p>
-    </div>
-
-    <div class="flow-arrow-h">
-      <div class="arrow-animated"></div>
-    </div>
-
-    <div class="flow-step-h step-enter" style="animation-delay: 0.7s">
-      <div class="step-number-h">4</div>
-      <div class="step-icon-h">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      </div>
-      <h5>Analytics</h5>
-      <p>Switch to <strong>"Analytics"</strong> for pivot tables and breakdowns.</p>
-    </div>
-  </div>
-</div>
-
-<!-- FDSS MAPPING FLOW -->
-<div class="flow-section fade-up" style="animation-delay: 0.4s">
-  <div class="flow-section-header">
-    <div class="flow-section-icon fdss">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-    </div>
-    <div>
-      <h2 class="flow-title">FDSS — Tactical Mapping Engine</h2>
-      <p class="flow-subtitle">Identify shared Service Order IDs between two data reports automatically.</p>
-    </div>
-    <div class="flow-badge fdss-badge">MATCH MODE</div>
-  </div>
-
-  <div class="flow-steps">
-    <div class="flow-step step-enter" style="animation-delay: 0.5s">
-      <div class="step-number">1</div>
-      <div class="step-content">
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <div class="kpi-card vecare">
+        <div class="kpi-icon">🏥</div>
+        <div class="kpi-info">
+          <h3>Vecare Share (55%)</h3>
+          <p class="value">{{ kpis.vecareShare | currency:'INR':'symbol':'1.0-0' }}</p>
+          <span class="subtitle">Revenue allocated to Vecare</span>
         </div>
-        <h4>Stage Primary FDSS</h4>
-        <p>Drop your primary operational file into the FDSS Vault. This is your base dataset.</p>
       </div>
     </div>
 
-    <div class="flow-connector">
-      <div class="connector-pulse"></div>
-    </div>
-
-    <div class="flow-step step-enter" style="animation-delay: 0.6s">
-      <div class="step-number">2</div>
-      <div class="step-content">
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-        </div>
-        <h4>Activate Match Mode</h4>
-        <p>Click <strong>"Compare"</strong> in the top header. This activates the Service Order matching engine.</p>
+    <!-- Data Table Section -->
+    <div class="table-container">
+      <div class="table-header">
+        <h3>Recent Uploaded Sales Data</h3>
+        <span class="record-count">{{ salesRecords.length }} Records Found</span>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Store Name</th>
+              <th>Brand</th>
+              <th>Product</th>
+              <th>Serial No</th>
+              <th>Activation Value</th>
+              <th>Bill Date</th>
+              <th>Customer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let record of salesRecords">
+              <td>{{ record.storeName || '-' }}</td>
+              <td><span class="badge">{{ record.brand || '-' }}</span></td>
+              <td>{{ record.product || '-' }}</td>
+              <td class="mono">{{ record.serialNo || '-' }}</td>
+              <td class="highlight">{{ record.activationValue || '-' }}</td>
+              <td>{{ record.billDate || '-' }}</td>
+              <td>{{ record.customerName || '-' }}</td>
+            </tr>
+            <tr *ngIf="salesRecords.length === 0">
+              <td colspan="7" class="empty-state">No sales data found. Please upload a file.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <div class="flow-connector">
-      <div class="connector-pulse"></div>
-    </div>
-
-    <div class="flow-step step-enter" style="animation-delay: 0.7s">
-      <div class="step-number">3</div>
-      <div class="step-content">
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-        </div>
-        <h4>Target Report Sync</h4>
-        <p>Select the <strong>BR 2 or comparison file</strong> from the dropdown. The system will intersect the Order IDs instantly.</p>
-      </div>
-    </div>
-
-    <div class="flow-connector">
-      <div class="connector-pulse"></div>
-    </div>
-
-    <div class="flow-step highlight step-enter" style="animation-delay: 0.8s">
-      <div class="step-number pulse">4</div>
-      <div class="step-content">
-        <div class="step-icon success">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 11.08 20 9 11 18 7 14 9 12 11 14 20 5 22 7.08"/></svg>
-        </div>
-        <h4>Matched Analytics</h4>
-        <p>View Pivot tables showing only shared records. Filter by **FDSS** or **AC FDSS** for departmental clarity.</p>
-        <div class="step-tag success-tag" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; border-color: rgba(34, 197, 94, 0.2);">✨ VERIFIED INTERSECTION</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- QUICK TIPS -->
-<div class="tips-grid fade-up" style="animation-delay: 0.4s">
-  <div class="tip-card">
-    <div class="tip-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-    </div>
-    <h5>Read-Only by Default</h5>
-    <p>Data is <strong>protected</strong> from accidental edits. Click "Edit Data" to unlock.</p>
-  </div>
-  <div class="tip-card">
-    <div class="tip-icon chat-tip">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    </div>
-    <h5>AI Assistant</h5>
-    <p>Click the <strong>chat bubble</strong> (bottom right) to ask your LangChain AI anything.</p>
-  </div>
-  <div class="tip-card">
-    <div class="tip-icon db-tip">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-    </div>
-    <h5>MongoDB Status</h5>
-    <p>Green dot in sidebar = <strong>Connected</strong>. Red = Check your connection.</p>
-  </div>
-  <div class="tip-card">
-    <div class="tip-icon upload-tip">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    </div>
-    <h5>Manual Upload</h5>
-    <p>Drag & drop any <strong>.xlsx or .csv</strong> file directly into File Voyager.</p>
-  </div>
+  </ng-container>
 </div>

@@ -16,4 +16,8 @@ export class SalesService {
     formData.append('file', file);
     return this.http.post(`${this.apiUrl}/sales-data`, formData);
   }
+
+  getDashboardData(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/dashboard-data`);
+  }
 }

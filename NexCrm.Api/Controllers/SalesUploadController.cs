@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using NexCrm.Api.Data;
 using NexCrm.Api.Models;
 using System.Data;
+using MongoDB.Driver;
 
 namespace NexCrm.Api.Controllers;
 
@@ -104,5 +105,42 @@ public class SalesUploadController : ControllerBase
             return row[col].ToString();
         }
         return null;
+    }
+
+    [HttpGet("dashboard-data")]
+    public async Task<IActionResult> GetDashboardData()
+    {
+        try
+        {
+            var records = await _db.SalesRecords.Find(_ => true).ToListAsync();
+
+            decimal overallRevenue = 0;
+
+            foreach (var record in records)
+            {
+                if (decimal.TryParse(record.ActivationValue?.Replace("₹", "").Replace(",", "").Trim(), out var val))
+                {
+                    overallRevenue += val;
+                }
+            }
+
+            var storeShare = overallRevenue * 0.45m;
+            var vecareShare = overallRevenue * 0.55m;
+
+            return Ok(new
+            {
+                kpis = new
+                {
+                    overallRevenue,
+                    storeShare,
+                    vecareShare
+                },
+                records
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error fetching dashboard data: {ex.Message}");
+        }
     }
 }
