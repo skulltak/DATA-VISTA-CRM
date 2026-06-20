@@ -29,6 +29,7 @@ export const routes: Routes = [
       { path: 'jop-report', component: JopReportComponent },
       { path: 'file-viewer', component: FileViewerComponent },
       { path: 'fdss', component: FDSSComponent },
+      { path: 'sales-upload', loadComponent: () => import('./views/sales-upload/sales-upload').then(m => m.SalesUploadComponent) },
     ]
   },
   { path: 'login', component: LoginComponent },

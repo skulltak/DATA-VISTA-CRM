@@ -55,4 +55,7 @@ public class MongoDbContext
 
     public IMongoCollection<User> Users =>
         _db.GetCollection<User>("users");
+
+    public IMongoCollection<SalesRecord> SalesRecords =>
+        _db.GetCollection<SalesRecord>("salesRecords");
 }

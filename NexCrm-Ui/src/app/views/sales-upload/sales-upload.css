@@ -1,0 +1,112 @@
+.import-container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header-section {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.header-section h2 {
+  font-size: 1.5rem;
+  color: var(--text-color, #333);
+  margin-bottom: 0.5rem;
+}
+
+.header-section p {
+  color: var(--text-muted, #666);
+}
+
+.drop-zone {
+  border: 2px dashed var(--border-color, #ccc);
+  border-radius: 12px;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--bg-color, #fafafa);
+  transition: all 0.3s ease;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drop-zone:hover {
+  border-color: var(--primary-color, #0066cc);
+  background: var(--bg-hover, #f0f7ff);
+}
+
+.drop-zone.active {
+  border-color: var(--primary-color, #0066cc);
+  background: var(--bg-hover, #f0f7ff);
+}
+
+.icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.icon.success {
+  color: #28a745;
+}
+
+.drop-content h3 {
+  margin: 1rem 0;
+  color: var(--text-color, #333);
+}
+
+.btn-primary {
+  background: var(--primary-color, #0066cc);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover, #0052a3);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary-color, #0066cc);
+  border: 1px solid var(--primary-color, #0066cc);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-hover, #f0f7ff);
+}
+
+.file-hint {
+  font-size: 0.875rem;
+  color: var(--text-muted, #666);
+  margin-top: 1rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color, #f3f3f3);
+  border-top: 4px solid var(--primary-color, #0066cc);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.actions {
+  margin-top: 2rem;
+}

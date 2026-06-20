@@ -1,0 +1,41 @@
+<div class="import-container">
+  <div class="header-section">
+    <h2>Upload Sales Data</h2>
+    <p>Upload a CSV or Excel file containing the required sales data headers.</p>
+  </div>
+
+  <div 
+    class="drop-zone" 
+    [class.active]="isLoading"
+    (dragover)="onDragOver($event)"
+    (drop)="onDrop($event)">
+    
+    <input 
+      type="file" 
+      #fileInput 
+      (change)="onFileSelected($event)" 
+      accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+      style="display: none;">
+
+    <div class="drop-content" *ngIf="!isLoading && !importResult">
+      <div class="icon">📄</div>
+      <h3>Drag and drop your file here</h3>
+      <p>or</p>
+      <button class="btn-primary" (click)="fileInput.click()">Browse Files</button>
+      <p class="file-hint">Supported formats: .csv, .xlsx</p>
+    </div>
+
+    <div class="loading-content" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <h3>{{ message }}</h3>
+    </div>
+
+    <div class="success-content" *ngIf="importResult && !isLoading">
+      <div class="icon success">✅</div>
+      <h3>{{ message }}</h3>
+      <div class="actions">
+        <button class="btn-secondary" (click)="cancelImport()">Upload Another File</button>
+      </div>
+    </div>
+  </div>
+</div>
